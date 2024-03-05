@@ -1,0 +1,46 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Users {
+  id       Int      @id @default(autoincrement()) @map("id")
+  email    String   @unique @map("email")
+  password String   @map("password")
+  userName String   @map("userName")
+  role     Role     @default(USER) @map("role")
+  resume   Resume[]
+
+  @@map("Users")
+}
+
+model Resume {
+  id        Int      @id @default(autoincrement()) @map("id")
+  user_id   Int      @map("user_id")
+  title     String   @map("title")
+  context   String   @map("context")
+  status    Status   @default(APPLY) @map("status")
+  createdAt DateTime @default(now()) @map("createdAt")
+  user      Users    @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id], map: "Resume_user_id_fkey")
+  @@map("Resume")
+}
+
+enum Status {
+  APPLY
+  DROP
+  PASS
+  INTERVIEW1
+  INTERVIEW2
+  FINAL_PASS
+}
+
+enum Role {
+  USER
+  ADMIN
+}
